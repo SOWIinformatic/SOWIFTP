@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- 
+    Solution to the exceptional situation:
+    HTTP Error 500.34 - ASP.NET Core does not support mixing hosting models
+    -->
+    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <GenerateDocumentation>true</GenerateDocumentation>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>

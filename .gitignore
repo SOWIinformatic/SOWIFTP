@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Local test secrets
+*.Local.runsettings
+
 # User-specific files
 *.rsuser
 *.suo

@@ -3,8 +3,13 @@
 
 // Ignore Spelling: Pservice
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SOWIFTP.Web.Models;
 using SOWIFTP.Web.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace SOWIFTP.Web.Tests
 {
@@ -17,13 +22,21 @@ namespace SOWIFTP.Web.Tests
         private FTPservice? _ftpService;
         private FTPconnectionModel? _ftpConnection;
 
-        // Test variables
-        private static readonly string Server = "example.com";
-        private static readonly string Username = "testuser";
-        private static readonly string Password = "testpassword";
-        private static readonly string Path = "/testfolder/";
-        private static readonly string TestFilePath = "C:\\path\\to\\testfile.txt";
-        private static readonly string TestFileName = "testfile.txt";
+        // Test variables - names identical to GitHub Secrets and .runsettings
+        private static readonly string Server = Environment.GetEnvironmentVariable("TEST_FTP_SERVER") ?? "example.com";
+        private static readonly string Username = Environment.GetEnvironmentVariable("TEST_FTP_USERNAME") ?? "testuser";
+        private static readonly string Password = Environment.GetEnvironmentVariable("TEST_FTP_PASSWORD") ?? "testpassword";
+        private static readonly string Path = Environment.GetEnvironmentVariable("TEST_FTP_PATH") ?? "/";
+        private static readonly string TestFileName =
+    Environment.GetEnvironmentVariable("TEST_FTP_TEST_FILENAME") ?? "testfile.txt";
+
+        private static readonly string TestFilePath =
+    System.IO.Path.Combine(
+        Environment.GetEnvironmentVariable("TEST_FTP_TEST_FILEPATH")
+            ?? System.IO.Path.Combine(
+                System.IO.Path.GetDirectoryName(typeof(FTPserviceTests).Assembly.Location)!,
+                "TestData"),
+        TestFileName);
 
         /// <summary>
         /// Initializes the FTP connection and service before each test.
@@ -40,6 +53,9 @@ namespace SOWIFTP.Web.Tests
             };
 
             _ftpService = new FTPservice(_ftpConnection);
+
+            // Testdatei im temp-Verzeichnis erstellen
+            File.WriteAllText(TestFilePath, "This is a test file for FTP upload.");
         }
 
         /// <summary>
@@ -49,6 +65,10 @@ namespace SOWIFTP.Web.Tests
         public void Cleanup()
         {
             _ftpService?.Dispose();
+
+            // Testdatei wieder löschen
+            if (File.Exists(TestFilePath))
+                File.Delete(TestFilePath);
         }
 
         /// <summary>

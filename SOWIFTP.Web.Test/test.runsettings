@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <TEST_FTP_SERVER>example.com</TEST_FTP_SERVER>
+      <TEST_FTP_USERNAME>testuser</TEST_FTP_USERNAME>
+      <TEST_FTP_PASSWORD>REPLACE_ME</TEST_FTP_PASSWORD>
+      <TEST_FTP_PATH>/</TEST_FTP_PATH>
+      <TEST_FTP_TEST_FILEPATH>TestData</TEST_FTP_TEST_FILEPATH>
+      <TEST_FTP_TEST_FILENAME>testfile.txt</TEST_FTP_TEST_FILENAME>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>

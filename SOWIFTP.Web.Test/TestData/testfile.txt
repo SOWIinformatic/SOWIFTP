@@ -1,0 +1,2 @@
+Test file für die FTP Tool Unit Tests. 
+Es enthält einige Zeilen Text, um die Funktionalität der Dateioperationen zu testen. 

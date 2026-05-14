@@ -1,0 +1,67 @@
+name: CI/CD – Test & Deploy to ftptool.sowi.ch
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Unit-Tests (Test-FTP)
+    runs-on: ubuntu-latest
+    env:
+      TEST_FTP_SERVER:        ${{ secrets.TEST_FTP_SERVER }}
+      TEST_FTP_USERNAME:      ${{ secrets.TEST_FTP_USERNAME }}
+      TEST_FTP_PASSWORD:      ${{ secrets.TEST_FTP_PASSWORD }}
+      TEST_FTP_PATH:          ${{ secrets.TEST_FTP_PATH }}
+      TEST_FTP_TEST_FILEPATH: ${{ secrets.TEST_FTP_TEST_FILEPATH }}
+      TEST_FTP_TEST_FILENAME: ${{ secrets.TEST_FTP_TEST_FILENAME }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .NET 6 einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: NuGet-Pakete wiederherstellen
+        run: dotnet restore SOWIFTP.sln
+
+      - name: Tests ausführen
+        run: dotnet test SOWIFTP.Web.Test/SOWIFTP.Web.Test.csproj --configuration Release --no-restore --logger "trx;LogFileName=test-results.trx"
+
+      - name: Testergebnisse hochladen
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: '**/test-results.trx'
+
+  deploy:
+    name: Build & Deploy → ftptool.sowi.ch
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .NET 6 einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: NuGet-Pakete wiederherstellen
+        run: dotnet restore SOWIFTP.sln
+
+      - name: App publizieren
+        run: dotnet publish SOWIFTP.Web/SOWIFTP.Web.csproj --configuration Release --output ./publish
+
+      - name: Via FTP auf ftptool.sowi.ch deployen
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:     ${{ secrets.PUBLISH_FTP_SERVER }}
+          username:   ${{ secrets.PUBLISH_FTP_USERNAME }}
+          password:   ${{ secrets.PUBLISH_FTP_PASSWORD }}
+          local-dir:  ./publish/
+          server-dir: ${{ secrets.PUBLISH_FTP_SERVER_DIR }}
